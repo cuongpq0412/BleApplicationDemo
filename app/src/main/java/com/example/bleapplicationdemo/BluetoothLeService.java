@@ -96,6 +96,7 @@ public class BluetoothLeService extends Service {
     private final BluetoothGattCallback mGattCallback = new BluetoothGattCallback() {
         @Override
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
+            Log.i(TAG, "onConnectionStateChange");
             if (newState == BluetoothProfile.STATE_CONNECTED) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                     if (ActivityCompat.checkSelfPermission(BluetoothLeService.this, Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED) {
@@ -112,6 +113,7 @@ public class BluetoothLeService extends Service {
 
         @Override
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
+            Log.i(TAG, "onServicesDiscovered");
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 displayGattServices(mBluetoothGatt.getServices());
             } else {
@@ -140,6 +142,7 @@ public class BluetoothLeService extends Service {
     private ArrayList<ArrayList<BluetoothGattCharacteristic>> mGattCharacteristics = new ArrayList<>();
 
     private void displayGattServices(List<BluetoothGattService> gattServices) {
+        Log.w(TAG, "displayGattServices : ");
         if (gattServices == null) return;
         String uuid;
         mGattCharacteristics = new ArrayList<>();
@@ -188,6 +191,7 @@ public class BluetoothLeService extends Service {
         }
     }
     public void readCharacteristic(BluetoothGattCharacteristic characteristic) {
+        Log.w(TAG, "readCharacteristic : ");
         if (mBluetoothAdapter == null || mBluetoothGatt == null) {
             Log.w(TAG, "BluetoothAdapter not initialized");
             return;
@@ -229,6 +233,7 @@ public class BluetoothLeService extends Service {
 
     private void broadcastUpdate(final String action,
                                  final BluetoothGattCharacteristic characteristic, String deviceName) {
+        Log.w(TAG, "broadcastUpdate");
         final Intent intent = new Intent(action);
         double temperatureMeasurementValue = 0.0;
         double tpmValue = 0.0;
@@ -311,9 +316,9 @@ public class BluetoothLeService extends Service {
                     return false;
                 }
             }
+            Log.w(TAG, "connect mBluetoothDeviceAddress");
             return mBluetoothGatt.connect();
         }
-
         final BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
         if (device == null) {
             Log.w(TAG, "Device not found.  Unable to connect.");
@@ -324,7 +329,7 @@ public class BluetoothLeService extends Service {
                 return false;
             }
         }
-        mBluetoothGatt = device.connectGatt(BluetoothLeService.this, false, mGattCallback);
+        mBluetoothGatt = device.connectGatt(BluetoothLeService.this, true, mGattCallback);
 
         Log.d(TAG, "Trying to create a new connection.");
         mBluetoothDeviceAddress = address;
